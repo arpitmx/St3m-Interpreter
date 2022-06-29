@@ -1,81 +1,52 @@
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class St3mMain {
 
-    public static MethodsFK methodsFK;
+    StemPreter stemPreter;
+    St3mEditor stemEditor;
+    static final String stm = "St3m> ";
+    public static void main(String args[]) throws IOException {
 
-    public static void main(String[] args) throws IOException {
+        St3mLexer lexer = new St3mLexer();
+        St3mParser parser = new St3mParser();
+        Scanner sc = new Scanner(System.in);
 
-        String source = "prog.fck";
+        System.out.println("------------------ << ST3M INTERPRETER >> ------------------");
+        while(true) {
 
-        StringBuffer sourceCode = openSource(source);
-        if (!sourceCode.toString().equals("")){
-            methodsFK = new MethodsFK(sourceCode);
-            Map<String,String > map = lexer(sourceCode);
-            checkMethods(map);
-        }
-        else {
-            throwShots("NS");
-        }
-    }
+           System.out.print(stm + "Select Mode : \n 1. Stem Editor\n 2. Source file \n"+stm);
+           int choice = sc.nextInt();
+           if (choice == 1) {
 
-    static void throwShots(String key){
-        switch (key){
-            case "MNF":  System.out.println("St3m> No compatible positions found."); break;
-            case "P-1":  System.out.println("St3m> Error : what to 'print' ? "); break;
-            case "P-2":  System.out.println("St3m> Error : close the doors , if any one door is left out, anyone can hear us."); break;
-            case "NS" :  System.out.println("St3m> Error : empty source"); break;
+               St3mEditor stemEditor = new St3mEditor();
+               stemEditor.initEditor();
+               break;
 
-            default: System.out.println("St3m> Internal error , case(s) not found at key "+ key);
+           } else if (choice == 2) {
+               System.out.print(stm + "File path: ");
+               String path = sc.next();
+               //stemPreter.stemInitSource(path);
+               lexer.init_lexer(openSource(path).toString());
+               parser.setClassifications(lexer.returnClass());
+               break;
+
+           } else {
+               System.out.println(stm + "Invalid input");
+           }
+       }
 
 
-
-        }
-    }
-
-    static void checkMethods(Map<String, String> map){
-        if (map.containsKey("print")){
-
-            switch (map.get("print")){
-                case "-1" :  throwShots("P-1");
-                            break;
-                case "-2" :  throwShots("P-2");
-                            break;
-                default:  System.out.println("St3m> "+ map.get("print"));
-            }
-        }
-        else {
-            throwShots("MNF");
-        }
     }
 
 
 
-    static Map<String, String> lexer(StringBuffer sourceCode){
-        ArrayList<String> tokens = new ArrayList<>();
-        HashMap<String, String> map = new HashMap<>();
-
-
-        for (int i = 0 ; i < sourceCode.length() ; i ++){
-            String token = sourceCode.substring(0,i+1);
-            // System.out.println(token);
-
-            if (token.equals("print")){
-                tokens.add("print");
-               // System.out.println("> Keyword : Print");
-                map.put("print", "-1");
-                MethodsFK.Print(i, map);
-            }
-        }
-        return map;
-    }
 
     static StringBuffer openSource(String source) throws IOException {
         StringBuffer s = new StringBuffer();
-       // System.out.print("Source code : \n");
+        // System.out.print("Source code : \n");
         try {
             FileInputStream file = new FileInputStream(new File("src//"+source));
             int byt;
@@ -83,7 +54,7 @@ public class St3mMain {
                 //System.out.print((char) byt);
                 s.append((char)byt);
             }
-          //  System.out.println("\n-----------");
+            //  System.out.println("\n-----------");
             file.close();
 
         } catch (IOException e) {
@@ -92,7 +63,6 @@ public class St3mMain {
 
         return s;
     }
-
 
 }
 
